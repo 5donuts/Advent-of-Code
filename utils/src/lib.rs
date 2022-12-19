@@ -26,6 +26,7 @@ impl Day {
         println!("Day {}:", self.num);
         run_part("Part 1", self.p1, &input)?;
         run_part("Part 2", self.p2, &input)?;
+        print!("\n");
 
         Ok(())
     }
