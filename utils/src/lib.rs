@@ -43,6 +43,11 @@ fn time_str(duration: Duration) -> String {
     format!("{}s {}ms {}µs", secs, millis, micros)
 }
 
+/// The number of characters to have in the "answer box" when we print out the result.
+/// If the answer is fewer than this many characters, we fill with spaces. This way,
+/// we can nicely align our timing information in a column to the right of our answers.
+const ANSWER_COLS: usize = 25;
+
 fn run_part(
     title: &str,
     runner: fn(&'static str) -> PuzzleResult,
@@ -52,6 +57,17 @@ fn run_part(
     let answer = runner(input)?;
     let dur = Instant::now().duration_since(start);
 
-    println!("* {}: {}\t(took {})", title, answer, time_str(dur));
+    // Figure out how many ' ' we need to pad the answer with to make nice columns
+    // with our answers & timing info.
+    let answer_chars = answer.chars().count();
+    let pad_len = ANSWER_COLS - answer_chars;
+
+    println!(
+        "* {}: {}{}(took {})",
+        title,
+        answer,
+        " ".repeat(pad_len), // make it pretty
+        time_str(dur)
+    );
     Ok(())
 }
