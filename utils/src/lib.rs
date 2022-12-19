@@ -24,15 +24,8 @@ impl Day {
         let input = to_static_str(fs::read_to_string(self.input)?);
 
         println!("Day {}:", self.num);
-        let start = Instant::now();
-        let answer = (self.p1)(&input)?;
-        let dur = Instant::now().duration_since(start);
-        println!("* Part 1: {}\t(took {})", answer, time_str(dur));
-
-        let start = Instant::now();
-        let answer = (self.p2)(&input)?;
-        let dur = Instant::now().duration_since(start);
-        println!("* Part 2: {}\t(took {})", answer, time_str(dur));
+        run_part("Part 1", self.p1, &input)?;
+        run_part("Part 2", self.p2, &input)?;
 
         Ok(())
     }
@@ -48,4 +41,17 @@ fn time_str(duration: Duration) -> String {
     let millis = duration.subsec_millis();
     let micros = duration.subsec_micros() - (millis * 1000);
     format!("{}s {}ms {}µs", secs, millis, micros)
+}
+
+fn run_part(
+    title: &str,
+    runner: fn(&'static str) -> PuzzleResult,
+    input: &'static str,
+) -> Result<(), Box<dyn Error>> {
+    let start = Instant::now();
+    let answer = runner(input)?;
+    let dur = Instant::now().duration_since(start);
+
+    println!("* {}: {}\t(took {})", title, answer, time_str(dur));
+    Ok(())
 }
