@@ -21,6 +21,12 @@ fn main() {
             p2: days::d03::part2,
             input: "aoc2022/input/3",
         },
+        Day {
+            num: 4,
+            p1: days::d04::part1,
+            p2: days::d04::part2,
+            input: "aoc2022/input/4",
+        },
     ];
 
     for day in days {
