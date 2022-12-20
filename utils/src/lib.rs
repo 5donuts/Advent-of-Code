@@ -41,13 +41,13 @@ fn time_str(duration: Duration) -> String {
     let secs = duration.as_secs();
     let millis = duration.subsec_millis();
     let micros = duration.subsec_micros() - (millis * 1000);
-    format!("{}s {}ms {}µs", secs, millis, micros)
+    format!("{}s {:0>3}ms {:0>3}µs", secs, millis, micros)
 }
 
 /// The number of characters to have in the "answer box" when we print out the result.
 /// If the answer is fewer than this many characters, we fill with spaces. This way,
 /// we can nicely align our timing information in a column to the right of our answers.
-const ANSWER_COLS: usize = 25;
+const ANSWER_COLS: usize = 15;
 
 fn run_part(
     title: &str,
