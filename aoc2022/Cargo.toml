@@ -8,4 +8,5 @@ homepage = "https://adventofcode.com/2022"
 
 [dependencies]
 utils = { path = "../utils" }
+macros = { path = "../macros" }
 itertools = "0.10"
