@@ -3,6 +3,7 @@
 members = [
     "macros",
     "utils",
+    "aoc2015",
     "aoc2020",
     "aoc2022"
 ]
