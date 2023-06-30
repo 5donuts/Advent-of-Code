@@ -4,7 +4,7 @@ use utils::Day;
 mod days;
 
 fn main() {
-    let days = days!(1);
+    let days = days!(1, 2);
 
     for day in days {
         day.run().unwrap();
