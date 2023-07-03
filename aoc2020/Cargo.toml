@@ -11,3 +11,6 @@ exclude = ["input/"]
 [dependencies]
 utils = { path = "../utils" }
 macros = { path = "../macros" }
+
+[build-dependencies]
+utils = { path = "../utils" }

@@ -1,12 +1,7 @@
-use macros::days;
-use utils::Day;
+include!(concat!(env!("OUT_DIR"), "/days_runner.rs"));
 
 mod days;
 
 fn main() {
-    let days = days!(1);
-
-    for day in days {
-        day.run().unwrap();
-    }
+    run_days();
 }

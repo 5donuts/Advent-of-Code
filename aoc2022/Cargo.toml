@@ -12,3 +12,6 @@ exclude = ["input/"]
 utils = { path = "../utils" }
 macros = { path = "../macros" }
 itertools = "0.10"
+
+[build-dependencies]
+utils = { path = "../utils" }
