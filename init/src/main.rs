@@ -64,7 +64,8 @@ fn init_year(year: u16) -> Result<(), Box<dyn Error>> {
 
 // Initialize a new day for the given year
 fn init_day(year: u16, day: u8) -> Result<(), Box<dyn Error>> {
-    if day_exists(year, day)? {
+    let day = format!("{:0>2}", day);
+    if day_exists(year, &day)? {
         eprintln!("Day {}/{} already exists. Exiting.", year, day);
         return Err(format!("Day {}/{} already exists!", year, day).into());
     }
@@ -122,7 +123,7 @@ fn year_exists(year: u16) -> Result<bool, Box<dyn Error>> {
 // Check that the given day directory already exists.
 // We just assume that means it's been properly initialized b/c I'm lazy.
 // Additionally, we assume the year must exist when this function is called.
-fn day_exists(year: u16, day: u8) -> Result<bool, Box<dyn Error>> {
+fn day_exists(year: u16, day: &str) -> Result<bool, Box<dyn Error>> {
     let cwd = std::env::current_dir()?;
     let day_name = format!("d{}.rs", day);
     let crate_name = format!("aoc{}", year);
