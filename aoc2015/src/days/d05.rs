@@ -351,23 +351,6 @@ fn char_windows<'a>(src: &'a str, win_size: usize) -> impl Iterator<Item = &'a s
     })
 }
 
-/// This creates sliding chunks across a [String] without any allocations.
-/// This is a modification of [char_windows].
-/// For more details, see:
-/// * https://stackoverflow.com/a/51261570/3646065
-/// * [std::slice::Chunks]
-fn char_chunks<'a>(src: &'a str, chunk_size: usize) -> impl Iterator<Item = &'a str> {
-    src.char_indices()
-        .step_by(chunk_size)
-        .flat_map(move |(from, _)| {
-            src[from..]
-                .char_indices()
-                .skip(chunk_size - 1)
-                .next()
-                .map(|(to, c)| &src[from..from + to + c.len_utf8()])
-        })
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -378,25 +361,6 @@ mod tests {
         let expected = vec!["ab", "bc", "cd", "de", "ef"];
         assert_eq!(char_windows(s, 2).count(), expected.len());
         for (idx, w) in char_windows(s, 2).enumerate() {
-            assert_eq!(w, expected[idx]);
-        }
-    }
-
-    #[test]
-    fn chunks() {
-        // case where chunk_size % s.len() == 0
-        let s = "abcdef";
-        let expected = vec!["ab", "cd", "ef"];
-        assert_eq!(char_chunks(s, 2).count(), expected.len());
-        for (idx, w) in char_chunks(s, 2).enumerate() {
-            assert_eq!(w, expected[idx]);
-        }
-
-        // case where chunk_size % s.len() == 0
-        let s = "abcdefg";
-        let expected = vec!["ab", "cd", "ef"]; // i.e., chunks_exact vs chunks
-        assert_eq!(char_chunks(s, 2).count(), expected.len());
-        for (idx, w) in char_chunks(s, 2).enumerate() {
             assert_eq!(w, expected[idx]);
         }
     }
