@@ -37,7 +37,7 @@ pub fn part2(input: &str) -> PuzzleResult {
         }
     }
 
-    Err(format!("Never found the basement!"))
+    Err(format!("Never found the basement!").into())
 }
 
 enum Instruction {

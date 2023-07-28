@@ -2,8 +2,7 @@ use std::error::Error;
 use std::fs;
 use std::time::{Duration, Instant};
 
-/// For the sake of simplicity, just return puzzle answers as strings
-pub type PuzzleResult = Result<String, String>;
+pub type PuzzleResult = Result<String, Box<dyn Error>>;
 
 pub struct Day {
     /// The day number (e.g., 1, 2, ..., 25)

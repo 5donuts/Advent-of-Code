@@ -17,7 +17,7 @@ pub fn part1(input: &str) -> PuzzleResult {
             }
         }
     }
-    Err("Answer not found".to_string())
+    Err("Answer not found".into())
 }
 
 pub fn part2(input: &str) -> PuzzleResult {
@@ -40,7 +40,7 @@ pub fn part2(input: &str) -> PuzzleResult {
             }
         }
     }
-    Err("Answer not found".to_string())
+    Err("Answer not found".into())
 }
 
 #[cfg(test)]

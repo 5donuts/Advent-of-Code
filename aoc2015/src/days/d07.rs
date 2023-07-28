@@ -4,24 +4,24 @@ use utils::PuzzleResult;
 // see: https://doc.rust-lang.org/book/appendix-02-operators.html
 
 pub fn part1(input: &str) -> PuzzleResult {
-    let c = Circuit::try_from(input).map_err(|e| format!("{:?}", e))?;
-    let c = c.eval("a").map_err(|e| format!("{:?}", e))?;
+    let c = Circuit::try_from(input)?;
+    let c = c.eval("a")?;
     match &c["a"] {
         Signal::Value(v) => Ok(format!("{}", &v)),
-        Signal::Expr(e) => Err(format!("Expected value, got expr: '{:?}'", e)),
+        Signal::Expr(e) => Err(format!("Expected value, got expr: '{:?}'", e).into()),
     }
 }
 
 pub fn part2(input: &str) -> PuzzleResult {
-    let mut c = Circuit::try_from(input).map_err(|e| format!("{:?}", e))?;
-    let override_signal = c.clone().eval("a").map_err(|e| format!("{:?}", e))?["a"];
+    let mut c = Circuit::try_from(input)?;
+    let override_signal = c.clone().eval("a")?["a"];
 
     c.0.insert("b", override_signal);
-    let c = c.eval("a").map_err(|e| format!("{:?}", e))?;
+    let c = c.eval("a")?;
 
     match c["a"] {
         Signal::Value(v) => Ok(format!("{}", &v)),
-        Signal::Expr(e) => Err(format!("Expected value, got expr: '{:?}'", e)),
+        Signal::Expr(e) => Err(format!("Expected value, got expr: '{:?}'", e).into()),
     }
 }
 
