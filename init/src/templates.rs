@@ -9,26 +9,26 @@ pub fn part2(input: &str) -> PuzzleResult {
     todo!()
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    
-    #[test]
-    fn p1() {
-        let cases = vec![];
-        for (input, expected) in cases {
-            assert_eq!(part1(input).unwrap(), format!("{}", expected));
-        }
-    }
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
 
-    #[test]
-    fn p2() {
-        let cases = vec![];
-        for (input, expected) in cases {
-            assert_eq!(part2(input).unwrap(), format!("{}", expected));
-        }
-    }
-}
+//     #[test]
+//     fn p1() {
+//         let cases = vec![];
+//         for (input, expected) in cases {
+//             assert_eq!(part1(input).unwrap(), format!("{}", expected));
+//         }
+//     }
+
+//     #[test]
+//     fn p2() {
+//         let cases = vec![];
+//         for (input, expected) in cases {
+//             assert_eq!(part2(input).unwrap(), format!("{}", expected));
+//         }
+//     }
+// }
 "#;
 
 /// Template for a generic `main.rs`
