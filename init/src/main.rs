@@ -47,6 +47,7 @@ fn init_year(year: u16) -> Result<(), Box<dyn Error>> {
 
     // Create the directory structure
     fs::create_dir_all(&crate_root.join("src/days"))?;
+    fs::create_dir_all(&crate_root.join("input"))?;
 
     // Create src/main.rs, build.rs, & Cargo.toml
     fs::write(&crate_root.join("src/main.rs"), templates::MAIN)?;
