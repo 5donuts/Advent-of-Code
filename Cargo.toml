@@ -6,5 +6,6 @@ members = [
     "init",
     "aoc2015",
     "aoc2020",
-    "aoc2022"
+    "aoc2022",
+    "aoc2023",
 ]
