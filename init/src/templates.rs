@@ -1,5 +1,5 @@
 /// Template for a generic `dXX.rs`
-pub const DAY: &'static str = r#"use utils::PuzzleResult;
+pub const DAY: &'static str = r##"use utils::PuzzleResult;
 
 pub fn part1(input: &str) -> PuzzleResult {
     todo!()
@@ -9,27 +9,33 @@ pub fn part2(input: &str) -> PuzzleResult {
     todo!()
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-//     #[test]
-//     fn p1() {
-//         let cases = vec![];
-//         for (input, expected) in cases {
-//             assert_eq!(part1(input).unwrap(), format!("{}", expected));
-//         }
-//     }
+    static INPUT: &'static str = r#""#; // TODO
 
-//     #[test]
-//     fn p2() {
-//         let cases = vec![];
-//         for (input, expected) in cases {
-//             assert_eq!(part2(input).unwrap(), format!("{}", expected));
-//         }
-//     }
-// }
-"#;
+    #[test]
+    fn p1() {
+        let expected = todo!();
+        assert_eq!(
+            part1(INPUT).unwrap(),
+            format!("{expected}"),
+            "actual != expected"
+        );
+    }
+
+    // #[test]
+    // fn p2() {
+    //     let expected = todo!();
+    //     assert_eq!(
+    //         part2(INPUT).unwrap(),
+    //         format!("{expected}"),
+    //         "actual != expected"
+    //     );
+    // }
+}
+"##;
 
 /// Template for a generic `main.rs`
 pub const MAIN: &'static str = r#"include!(concat!(env!("OUT_DIR"), "/days_runner.rs"));
