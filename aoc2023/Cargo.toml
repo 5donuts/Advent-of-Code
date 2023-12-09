@@ -13,5 +13,8 @@ utils = { path = "../utils" }
 macros = { path = "../macros" }
 itertools = "0.12"
 
+[dev-dependencies]
+rand = "0.8"
+
 [build-dependencies]
 utils = { path = "../utils" }
