@@ -50,7 +50,8 @@ fn build_days_module<P: AsRef<Path>>(out_path: P, days: &[Day]) -> io::Result<()
 /// Helper function for build scripts to automatically generate the
 /// code to generate the [Day] runners.
 fn build_days_runner<P: AsRef<Path>>(out_path: P, days: &[Day]) -> io::Result<()> {
-    let day_nums: Vec<String> = days.iter().map(|d| format!("{}", d.num())).collect();
+    let mut day_nums: Vec<String> = days.iter().map(|d| format!("{}", d.num())).collect();
+    day_nums.sort_unstable(); // ensure the days are always run in-order
     let day_nums = day_nums.join(", ");
 
     fs::write(
