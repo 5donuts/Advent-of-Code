@@ -15,7 +15,7 @@ Advent of Code is a registered trademark in the United States.
 The design elements, language, styles, and concept of Advent of Code are
 all the sole property of Advent of Code and may not be replicated or
 used by any other person or entity without express written consent of
-Advent of Code. Copyright 2015-2023 Advent of Code. All rights reserved.
+Advent of Code. Copyright 2015-2024 Advent of Code. All rights reserved.
 
 That said, this program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
