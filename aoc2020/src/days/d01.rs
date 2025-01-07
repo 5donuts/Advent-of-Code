@@ -51,11 +51,11 @@ mod tests {
 
     #[test]
     fn p1() {
-        assert_eq!(part1(INPUT).unwrap(), "514579".to_string());
+        assert_eq!(part1(INPUT).unwrap(), "514579");
     }
 
     #[test]
     fn p2() {
-        assert_eq!(part2(INPUT).unwrap(), "241861950".to_string());
+        assert_eq!(part2(INPUT).unwrap(), "241861950");
     }
 }

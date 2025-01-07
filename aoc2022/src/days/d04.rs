@@ -78,11 +78,11 @@ mod tests {
 
     #[test]
     fn p1() {
-        assert_eq!(part1(&INPUT).unwrap(), "2".to_string());
+        assert_eq!(part1(&INPUT).unwrap(), "2");
     }
 
     #[test]
     fn p2() {
-        assert_eq!(part2(&INPUT).unwrap(), "4".to_string());
+        assert_eq!(part2(&INPUT).unwrap(), "4");
     }
 }

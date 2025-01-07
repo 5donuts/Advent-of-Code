@@ -154,12 +154,12 @@ mod tests {
 
     #[test]
     fn p1() {
-        assert_eq!(part1(INPUT).unwrap(), "CMZ".to_string());
+        assert_eq!(part1(INPUT).unwrap(), "CMZ");
     }
 
     #[test]
     fn p2() {
-        assert_eq!(part2(INPUT).unwrap(), "MCD".to_string());
+        assert_eq!(part2(INPUT).unwrap(), "MCD");
     }
 
     #[test]

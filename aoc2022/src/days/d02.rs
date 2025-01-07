@@ -182,12 +182,12 @@ C Z"#;
 
     #[test]
     fn p1() {
-        assert_eq!(part1(INPUT).unwrap(), "15".to_string());
+        assert_eq!(part1(INPUT).unwrap(), "15");
     }
 
     #[test]
     fn p2() {
-        assert_eq!(part2(INPUT).unwrap(), "12".to_string());
+        assert_eq!(part2(INPUT).unwrap(), "12");
     }
 
     #[test]
