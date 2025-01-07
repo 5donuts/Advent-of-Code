@@ -1,6 +1,5 @@
-# Standard Rust ignores
+# Ignore generated Rust binaries
 target
-Cargo.lock
 
 # Ignore AoC input files
 **/input
