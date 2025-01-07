@@ -1,17 +1,26 @@
 use utils::PuzzleResult;
 
 pub fn part1(input: &str) -> PuzzleResult {
-    let presents: Vec<Present> = input
+    let presents = input
         .lines()
         .map(|l| {
             let mut parts = l.split("x");
-            let l = parts.next().unwrap().parse::<u32>().unwrap();
-            let w = parts.next().unwrap().parse::<u32>().unwrap();
-            let h = parts.next().unwrap().parse::<u32>().unwrap();
+            let l = parts
+                .next()
+                .ok_or_else(|| format!("No length for: {l}"))?
+                .parse::<u32>()?;
+            let w = parts
+                .next()
+                .ok_or_else(|| format!("No width for: {l}"))?
+                .parse::<u32>()?;
+            let h = parts
+                .next()
+                .ok_or_else(|| format!("No height for: {l}"))?
+                .parse::<u32>()?;
 
-            (l, w, h).into()
+            Ok(Present::from((l, w, h)))
         })
-        .collect();
+        .collect::<Result<Vec<_>, Box<dyn std::error::Error>>>()?;
 
     let total_area: u32 = presents.iter().map(|p| p.surf_area() + p.slack()).sum();
 
@@ -19,17 +28,26 @@ pub fn part1(input: &str) -> PuzzleResult {
 }
 
 pub fn part2(input: &str) -> PuzzleResult {
-    let presents: Vec<Present> = input
+    let presents = input
         .lines()
         .map(|l| {
             let mut parts = l.split("x");
-            let l = parts.next().unwrap().parse::<u32>().unwrap();
-            let w = parts.next().unwrap().parse::<u32>().unwrap();
-            let h = parts.next().unwrap().parse::<u32>().unwrap();
+            let l = parts
+                .next()
+                .ok_or_else(|| format!("No length for: {l}"))?
+                .parse::<u32>()?;
+            let w = parts
+                .next()
+                .ok_or_else(|| format!("No width for: {l}"))?
+                .parse::<u32>()?;
+            let h = parts
+                .next()
+                .ok_or_else(|| format!("No height for: {l}"))?
+                .parse::<u32>()?;
 
-            (l, w, h).into()
+            Ok(Present::from((l, w, h)))
         })
-        .collect();
+        .collect::<Result<Vec<_>, Box<dyn std::error::Error>>>()?;
 
     let total_ribbon: u32 = presents.iter().map(|p| p.ribbon_len() + p.volume()).sum();
 
