@@ -5,38 +5,26 @@
 pub const DAY: &'static str = r##"use utils::PuzzleResult;
 
 pub fn part1(input: &str) -> PuzzleResult {
-    todo!()
+    todo!("Not implemented")
 }
 
 pub fn part2(input: &str) -> PuzzleResult {
-    todo!()
+    todo!("Not implemented")
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    static INPUT: &'static str = r#""#; // TODO
-
     #[test]
     fn p1() {
-        let expected = todo!();
-        assert_eq!(
-            part1(INPUT).unwrap(),
-            format!("{expected}"),
-            "actual != expected"
-        );
+        todo!("Not implemented");
     }
 
-    // #[test]
-    // fn p2() {
-    //     let expected = todo!();
-    //     assert_eq!(
-    //         part2(INPUT).unwrap(),
-    //         format!("{expected}"),
-    //         "actual != expected"
-    //     );
-    // }
+    #[test]
+    fn p2() {
+        todo!("Not implemented");
+    }
 }
 "##;
 
