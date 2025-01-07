@@ -172,6 +172,29 @@ mod tests {
     use super::*;
 
     #[test]
+    fn p1() {
+        let input = r#"1abc2
+pqr3stu8vwx
+a1b2c3d4e5f
+treb7uchet"#;
+
+        assert_eq!(part1(input).unwrap(), format!("{}", 142));
+    }
+
+    #[test]
+    fn p2() {
+        let input = r#"two1nine
+eightwothree
+abcone2threexyz
+xtwone3four
+4nineeightseven2
+zoneight234
+7pqrstsixteen"#;
+
+        assert_eq!(part2(input).unwrap(), format!("{}", 281));
+    }
+
+    #[test]
     fn calibration_val() {
         let cases = vec![
             ("1abc2", 12),
@@ -183,16 +206,6 @@ mod tests {
         for (input, expected) in cases {
             assert_eq!(calibration_value(input), expected);
         }
-    }
-
-    #[test]
-    fn p1() {
-        let input = r#"1abc2
-pqr3stu8vwx
-a1b2c3d4e5f
-treb7uchet"#;
-
-        assert_eq!(part1(input).unwrap(), format!("{}", 142));
     }
 
     #[test]
@@ -220,18 +233,5 @@ treb7uchet"#;
         for (input, expected) in cases {
             assert_eq!(unspell_digits(input), expected);
         }
-    }
-
-    #[test]
-    fn p2() {
-        let input = r#"two1nine
-eightwothree
-abcone2threexyz
-xtwone3four
-4nineeightseven2
-zoneight234
-7pqrstsixteen"#;
-
-        assert_eq!(part2(input).unwrap(), format!("{}", 281));
     }
 }
