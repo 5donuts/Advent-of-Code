@@ -115,12 +115,12 @@ CrZsJsPPZsGzwwsLwLmpwMDw"#;
 
     #[test]
     fn p1() {
-        assert_eq!(part1(&INPUT).unwrap(), "157");
+        assert_eq!(part1(INPUT).unwrap(), "157");
     }
 
     #[test]
     fn p2() {
-        assert_eq!(part2(&INPUT).unwrap(), "70");
+        assert_eq!(part2(INPUT).unwrap(), "70");
     }
 
     #[test]
