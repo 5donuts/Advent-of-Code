@@ -124,7 +124,144 @@ fn init(year: u16, day: Option<u8>) -> Result<(), Box<dyn Error>> {
 }
 
 fn fetch(year: u16, day: Option<u8>, session_cookie_path: &Path) -> Result<(), Box<dyn Error>> {
-    todo!()
+    let cwd = std::env::current_dir()?;
+    let crate_name = format!("aoc{year}");
+    let ws_crate_root = Path::new(&cwd).join(&crate_name);
+    let input_dir = ws_crate_root.join("input");
+
+    // Ensure the path to the session cookie file exists, then load the cookie.
+    if !(session_cookie_path.exists() && session_cookie_path.is_file()) {
+        return Err(format!(
+            "No such session cookie file: {}",
+            session_cookie_path
+                .to_str()
+                .unwrap_or("err: path contains non-unicode data")
+        )
+        .into());
+    }
+
+    let session_cookie = fs::read_to_string(session_cookie_path)?;
+
+    // Check if the workspace crate exists; if not, exit with an error
+    if !(ws_crate_root.exists() && ws_crate_root.is_dir()) {
+        return Err(format!("Workspace crate '{crate_name}' does not exist!").into());
+    }
+
+    // Check if the input directory for the workspace crate exists; if not, create it.
+    if !(input_dir.exists() && input_dir.is_dir()) {
+        println!("Creating {crate_name}/input directory");
+        fs::create_dir(&input_dir)?;
+    }
+
+    // If a day was specified, check to see if the input file for that day already exists.
+    // If not, attempt to download it using the specified session cookie.
+    if let Some(day) = day {
+        let day_input_file = input_dir.join(format!("{day}"));
+
+        if day_input_file.exists() && day_input_file.is_file() {
+            println!("Input file {crate_name}/input/{day} already exists; skipping download.");
+        } else {
+            fetch_day_input(year, day, &session_cookie, &day_input_file)?;
+        }
+    }
+    // If no day was specified, check the list of present day runners (i.e.,
+    // `<crate>/src/days/dXX.rs` files). For each of those, check if the corresponding input file
+    // is present. If not, attempt to download it using the specified session cookie.
+    else {
+        let days_mod_path = ws_crate_root.join("src/days");
+        let day_runner_regex = regex::Regex::new(r"^d\d\d\.rs$")?;
+        let mut day_runners: Vec<_> = fs::read_dir(&days_mod_path)?
+            .into_iter()
+            .filter_map(|entry| {
+                if entry.is_err() {
+                    return None;
+                }
+
+                let path = entry.unwrap().path();
+                if !path.is_file() {
+                    return None;
+                }
+
+                let fname = path.file_name().unwrap().to_str().unwrap();
+                day_runner_regex.captures(fname).and_then(|cap| {
+                    cap.get(0)
+                        // Pull out just the `XX` from a `dXX.rs` filename
+                        .and_then(|cap| Some(cap.as_str()[1..=2].parse::<u8>().unwrap()))
+                })
+            })
+            .collect();
+        day_runners.sort_unstable();
+
+        println!("Found {} day runners for year {year}", day_runners.len());
+
+        for day in day_runners {
+            let day_input_file = input_dir.join(format!("{day}"));
+            if day_input_file.exists() && day_input_file.is_file() {
+                println!("Input file {crate_name}/input/{day} already exists; skipping download.");
+                continue;
+            }
+
+            fetch_day_input(year, day, &session_cookie, &day_input_file)?;
+
+            // Give a pause to at least try to be nice to the AoC servers
+            std::thread::sleep(std::time::Duration::from_secs(3));
+        }
+
+        println!("done!");
+    }
+
+    Ok(())
+}
+
+/// Download the input file for a single day and write it to the disk
+fn fetch_day_input(
+    year: u16,
+    day: u8,
+    session_cookie: &str,
+    output_path: &Path,
+) -> Result<(), Box<dyn Error>> {
+    let download_url = format!("https://adventofcode.com/{year}/day/{day}/input");
+    if !prompt(&*format!("Fetching '{download_url}'. Proceed y/N? ")) {
+        println!("Ok; exiting");
+        return Ok(());
+    }
+
+    let cookie_jar = {
+        let cookie = format!("session={session_cookie}; Domain=adventofcode.com");
+        let url = "https://adventofcode.com/".parse::<reqwest::Url>()?;
+
+        let jar = reqwest::cookie::Jar::default();
+        jar.add_cookie_str(&cookie, &url);
+
+        jar
+    };
+
+    let user_agent = format!(
+        "Rust/{} (reqwest) GitHub/5donuts/Advent-of-Code Input Fetcher {}",
+        env!("RUSTC_VERSION"),
+        env!("CARGO_PKG_VERSION")
+    );
+
+    let request = reqwest::blocking::Client::builder()
+        .cookie_provider(std::sync::Arc::new(cookie_jar))
+        .build()?
+        .get(download_url)
+        .header(reqwest::header::USER_AGENT, user_agent);
+
+    let response = request.send()?;
+
+    if !response.status().is_success() {
+        return Err(format!("Error: {}", response.status().as_str()).into());
+    }
+
+    println!("Got {} bytes", response.content_length().unwrap());
+
+    let input_text = response.text()?;
+    fs::write(&output_path, input_text)?;
+
+    println!("Wrote {}", output_path.to_str().unwrap());
+
+    Ok(())
 }
 
 fn prompt(p: &str) -> bool {
