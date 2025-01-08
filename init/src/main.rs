@@ -1,166 +1,130 @@
+//! Binary workspace crate to simplify initializing additional workspace crates for challenge
+//! years, day solvers, and fetching & caching puzzle inputs.
+
 use std::error::Error;
 use std::fs;
 use std::io::{stdin, stdout, Write};
-use std::path::Path;
-use structopt::StructOpt;
+use std::path::{Path, PathBuf};
+
+use clap::{Parser, Subcommand};
 
 mod templates;
 
-#[derive(Debug, StructOpt)]
-#[structopt(
-    name = "Init",
-    about = "Helper script to set up a new day of AoC puzzles"
-)]
-struct Opt {
-    /// The year to init or update
-    #[structopt(name = "year")]
-    year: u16,
+#[derive(Debug, Subcommand)]
+enum Command {
+    /// Initialize a new workspace crate for a puzzle year and/or a new day runner for a new day
+    /// within that year.
+    New {
+        /// The puzzle year to initialize.
+        year: u16,
 
-    /// The day to init. If this option is not set, only the year is initialized
-    #[structopt(name = "day")]
-    day: Option<u8>,
+        /// The day to initialize within the specified year; if omitted, only initialize the
+        /// workspace crate.
+        day: Option<u8>,
+    },
+
+    /// Fetch your input to a particular puzzle.
+    Fetch {
+        /// The year of the puzzle for which to fetch the input.
+        year: u16,
+
+        /// The day of the puzzle for which to fetch the input; if omitted, fetch & cache all
+        /// inputs required for the defined day runners (i.e., any present `src/days/dXX.rs`
+        /// files).
+        day: Option<u8>,
+
+        /// Path to the file containing your session cookie value.
+        #[clap(short, long, value_parser, default_value = ".session-cookie")]
+        session_cookie_path: PathBuf,
+    },
+}
+
+#[derive(Debug, Parser)]
+#[clap(author, version, about)]
+struct Args {
+    #[command(subcommand)]
+    cmd: Command,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let opt = Opt::from_args();
+    let args = Args::parse();
 
-    if !year_exists(opt.year)? {
-        init_year(opt.year)?;
+    match args.cmd {
+        Command::New { year, day } => init(year, day),
+        Command::Fetch {
+            year,
+            day,
+            session_cookie_path,
+        } => fetch(year, day, &session_cookie_path),
+    }?;
+
+    Ok(())
+}
+
+fn init(year: u16, day: Option<u8>) -> Result<(), Box<dyn Error>> {
+    let cwd = std::env::current_dir()?;
+    let crate_name = format!("aoc{year}");
+    let ws_crate_root = Path::new(&cwd).join(&crate_name);
+
+    // Check if the specified year already has a workspace crate. If it does not exist, prompt the
+    // user to create it. If it does exist, proceed to the optional day initialization step. This
+    // assumes that should such a directory exist, it _must_ be properly configured which may or
+    // may not be the case.
+    if ws_crate_root.exists() && ws_crate_root.is_dir() {
+        println!("Workspace crate '{crate_name}' already exists.");
+    } else {
+        if !prompt(&*format!(
+            "Create workspace crate {crate_name} for puzzle year {year} y/N? "
+        )) {
+            println!("Ok; exiting.");
+            return Ok(());
+        }
+
+        // Create the workspace crate directory structure
+        fs::create_dir_all(&ws_crate_root.join("src/days"))?;
+        fs::create_dir_all(&ws_crate_root.join("input"))?;
+
+        // Write common workspace crate files from templates
+        fs::write(&ws_crate_root.join("src/main.rs"), templates::MAIN)?;
+        fs::write(&ws_crate_root.join("build.rs"), templates::BUILD)?;
+        fs::write(
+            &ws_crate_root.join("Cargo.toml"),
+            templates::cargo_toml(year),
+        )?;
+
+        // Instruct user to update the root workspace definition
+        // TODO: automate this bit, too
+        println!("Initialized workspace crate '{crate_name}'; you must now add it to Cargo.toml as a workspace crate.");
     }
 
-    if let Some(day) = opt.day {
-        init_day(opt.year, day)?;
+    if let Some(day) = day {
+        let day_name = format!("d{day:0>2}.rs");
+        let days_dir = Path::new(&cwd).join(&ws_crate_root).join("src/days");
+
+        // Check if the specified day already exists. If it does, exit with an error. Otherwise, create
+        // it.
+        let day_runner_path = days_dir.join(&day_name);
+        if day_runner_path.exists() && day_runner_path.is_file() {
+            return Err(
+                format!("Day runner already present: {crate_name}/src/days/{day_name}").into(),
+            );
+        }
+
+        if !prompt(&*format!(
+            "Create day runner '{day_name}' for puzzle year {year} y/N? "
+        )) {
+            println!("Ok; exiting");
+            return Ok(());
+        }
+
+        fs::write(&day_runner_path, templates::DAY)?;
     }
 
     Ok(())
 }
 
-// Initialize a new year
-fn init_year(year: u16) -> Result<(), Box<dyn Error>> {
-    if !prompt(&*format!("Year {} does not exist; create it y/N? ", year)) {
-        return Err(format!("Unable to init year {} (denied)", year).into());
-    }
-
-    let cwd = std::env::current_dir()?;
-    let year_name = format!("aoc{}", year);
-    let crate_root = Path::new(&cwd).join(&year_name);
-
-    // Create the directory structure
-    fs::create_dir_all(&crate_root.join("src/days"))?;
-    fs::create_dir_all(&crate_root.join("input"))?;
-
-    // Create src/main.rs, build.rs, & Cargo.toml
-    fs::write(&crate_root.join("src/main.rs"), templates::MAIN)?;
-    fs::write(&crate_root.join("build.rs"), templates::BUILD)?;
-    fs::write(&crate_root.join("Cargo.toml"), templates::cargo_toml(year))?;
-
-    // Tell the user to do the bit that's annoying to code
-    eprintln!(
-        "Initialized year {}; you must now add '{}' as a workspace crate.",
-        year, &year_name
-    );
-
-    Ok(())
-}
-
-// Initialize a new day for the given year
-fn init_day(year: u16, day: u8) -> Result<(), Box<dyn Error>> {
-    let day = format!("{:0>2}", day);
-    if day_exists(year, &day)? {
-        eprintln!("Day {}/{} already exists. Exiting.", year, day);
-        return Err(format!("Day {}/{} already exists!", year, day).into());
-    }
-
-    if !prompt(&*format!(
-        "Day {}/{} does not exist; create it y/N? ",
-        year, day
-    )) {
-        return Err(format!("Unable to init day {}/{} (denied)", year, day).into());
-    }
-
-    let cwd = std::env::current_dir()?;
-    let year_crate = format!("aoc{}", year);
-    let day_str = format!("d{}.rs", day);
-    let day_path = Path::new(&cwd)
-        .join(&year_crate)
-        .join("src/days")
-        .join(&day_str);
-
-    Ok(fs::write(&day_path, templates::DAY)?)
-}
-
-// Check that the given year directory already exists.
-// We just assume that means it's been properly initialized b/c I'm too lazy
-// to add any additional checks.
-fn year_exists(year: u16) -> Result<bool, Box<dyn Error>> {
-    let cwd = std::env::current_dir()?;
-    let year_crate = format!("aoc{}", year);
-
-    Ok(fs::read_dir(&cwd)?
-        .into_iter()
-        .filter_map(|entry| {
-            if entry.is_err() {
-                return None;
-            }
-
-            let entry = entry.unwrap();
-            let path = entry.path();
-
-            if !path.is_dir() {
-                return None;
-            }
-
-            let path = path.file_name().unwrap().to_str().unwrap();
-            if path == year_crate {
-                Some(path.to_string())
-            } else {
-                None
-            }
-        })
-        .count()
-        > 0)
-}
-
-// Check that the given day directory already exists.
-// We just assume that means it's been properly initialized b/c I'm lazy.
-// Additionally, we assume the year must exist when this function is called.
-fn day_exists(year: u16, day: &str) -> Result<bool, Box<dyn Error>> {
-    let cwd = std::env::current_dir()?;
-    let day_name = format!("d{}.rs", day);
-    let crate_name = format!("aoc{}", year);
-    let days_dir = Path::new(&cwd).join(&crate_name).join("src/days");
-
-    Ok(fs::read_dir(&days_dir)?
-        .into_iter()
-        .filter_map(|entry| {
-            if entry.is_err() {
-                return None;
-            }
-
-            let entry = entry.unwrap();
-            let path = entry.path();
-
-            // Skip all directories
-            if !path.is_file() {
-                return None;
-            }
-
-            // Grab the filename instead of the whole path
-            if let None = path.file_name() {
-                return None;
-            }
-            let path = path.file_name().unwrap().to_str().unwrap();
-
-            // Only grab the dXX.rs files
-            if path.starts_with("d") && path.ends_with(".rs") {
-                Some(path.to_string())
-            } else {
-                None
-            }
-        })
-        .filter(|file_name| file_name == &day_name)
-        .count()
-        > 0)
+fn fetch(year: u16, day: Option<u8>, session_cookie_path: &Path) -> Result<(), Box<dyn Error>> {
+    todo!()
 }
 
 fn prompt(p: &str) -> bool {

@@ -1,3 +1,6 @@
+//! Module containing a few template strings (and functions to generate those strings) to use when
+//! initializing additional workspace crates for puzzle years or new day solvers.
+
 /// Template for a generic `dXX.rs`
 pub const DAY: &'static str = r##"use utils::PuzzleResult;
 
@@ -59,10 +62,10 @@ fn main() {
 pub fn cargo_toml(year: u16) -> String {
     format!(
         r#"[package]
-name = "aoc{}"
+name = "aoc{year}"
 version = "0.1.0"
 edition = "2021"
-homepage = "https://adventofcode.com/{}"
+homepage = "https://adventofcode.com/{year}"
 publish = false
 exclude = ["input/"]
 
@@ -74,7 +77,6 @@ macros = {{ path = "../macros" }}
 
 [build-dependencies]
 utils = {{ path = "../utils" }}
-"#,
-        year, year
+"#
     )
 }
