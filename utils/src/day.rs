@@ -60,6 +60,14 @@ fn run_part(
     // Figure out how many ' ' we need to pad the answer with to make nice columns
     // with our answers & timing info.
     let answer_chars = answer.chars().count();
+
+    // Add some (very) basic checking for answer lengths
+    if answer_chars < 1 {
+        return Err("Answer has length 0!".into());
+    } else if answer_chars > ANSWER_COLS {
+        return Err(format!("Answer is too long ({answer_chars} vs {ANSWER_COLS})!").into());
+    }
+
     let pad_len = ANSWER_COLS - answer_chars;
 
     println!(
