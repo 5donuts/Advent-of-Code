@@ -46,7 +46,7 @@ fn time_str(duration: Duration) -> String {
 /// The number of characters to have in the "answer box" when we print out the result.
 /// If the answer is fewer than this many characters, we fill with spaces. This way,
 /// we can nicely align our timing information in a column to the right of our answers.
-const ANSWER_COLS: usize = 15;
+const ANSWER_COLS: usize = 30;
 
 fn run_part(
     title: &str,
