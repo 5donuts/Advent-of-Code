@@ -13,9 +13,6 @@ pub fn part1(input: &str) -> PuzzleResult {
         ring.num() + 1
     } else {
         // Get the "side" of the ring on which this address can be found.
-        // If the sliding window across the counter-clockwise ordered corners doesn't yield the
-        // side containing the target address, it must be on the side between the first and last
-        // corners which is not examined by the sliding window.
         let (c1, c2) = ring
             .corners()
             .windows(2)
@@ -27,6 +24,9 @@ pub fn part1(input: &str) -> PuzzleResult {
                 }
             })
             .next()
+            // If the sliding window across the counter-clockwise ordered corners doesn't yield the
+            // side containing the target address, it must be on the side between the first and last
+            // corners which is not examined by the sliding window.
             .or_else(|| {
                 let corners = ring.corners();
                 Some((corners[3] as i32, corners[0] as i32))
@@ -153,17 +153,6 @@ impl Ring {
 
     /// Get the four corner addresses of this ring in ascending, counter-clockwise order starting
     /// with the "top-right" corner.
-    ///
-    /// For example:
-    /// ```
-    /// let ring = Ring::new(3);
-    /// let expected = [3, 5, 7, 9];
-    /// assert_eq!(ring.corners(), expected);
-    ///
-    /// let ring = Ring::new(5);
-    /// let expected = [13, 17, 21, 25];
-    /// assert_eq!(ring.corners(), expected);
-    /// ```
     fn corners(&self) -> Vec<usize> {
         // Step by `n + 1` because the number of elements on each "side" of the ring is `n + 2`,
         // meaning there are `n + 2 - 1` steps between those elements.
@@ -182,6 +171,7 @@ impl Ring {
 mod tests {
     use super::*;
 
+    // Get the steps from the address back to the origin
     #[test]
     fn p1() {
         let cases = vec![("12", "3"), ("23", "2"), ("1024", "31")];
@@ -235,6 +225,17 @@ mod tests {
 
             for (input, expected) in cases {
                 assert_eq!(Ring::containing(input).0, expected)
+            }
+        }
+
+        // Ensure we can get the expected corners for rings
+        #[test]
+        fn corners() {
+            let cases = vec![(3, vec![3, 5, 7, 9]), (5, vec![13, 17, 21, 25])];
+
+            for (input, expected) in cases {
+                let ring = Ring::new(input).unwrap();
+                assert_eq!(ring.corners(), expected);
             }
         }
     }
