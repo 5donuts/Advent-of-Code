@@ -45,7 +45,11 @@ pub fn part1(input: &str) -> PuzzleResult {
 }
 
 pub fn part2(input: &str) -> PuzzleResult {
-    let input: usize = input.parse()?;
+    let target_addr = input
+        .lines()
+        .map(|l| l.parse::<usize>())
+        .next()
+        .ok_or_else(|| format!("No max val in: {input}"))??;
 
     todo!("Not implemented")
 }
@@ -95,6 +99,11 @@ pub fn part2(input: &str) -> PuzzleResult {
 ///
 /// In practice, options 2 and 3 are identical because when the address is on an axis with the
 /// origin, `n + 1 - d = n - 2`.
+///
+/// ## Part 2
+///
+/// Unfortunately, part 2 requires we easily compute adjacent addresses in the grid which this
+/// approach is well suited for. See: [`Addr`].
 #[derive(Debug)]
 struct Ring(usize);
 
@@ -165,6 +174,84 @@ impl Ring {
             .rev()
             .collect()
     }
+
+    /// Get an [Iterator] over the addresses in this ring.
+    fn iter(&self) -> std::ops::RangeInclusive<usize> {
+        self.start()..=self.end()
+    }
+}
+
+/// Represent what "side" of a [Ring] on which an [Addr] can be found.
+#[derive(Debug)]
+enum AddrSide {
+    /// The address is between the first & second corners.
+    North,
+
+    /// The address is between the second & third corners.
+    West,
+
+    /// The address is between the third & fourth corners.
+    South,
+
+    /// The address is between the fourth & first corners.
+    East,
+}
+
+/// Represent a single address in the spiral memory grid.
+///
+/// ## Part 2
+///
+/// This is the layout of the grid in question:
+///
+/// 17  16  15  14  13
+/// 18   5   4   3  12
+/// 19   6   1   2  11
+/// 20   7   8   9  10
+/// 21  22  23  24  25 ...
+#[derive(Debug)]
+struct Addr {
+    addr: usize,
+    ring: Ring,
+
+    /// If this address is a corner, `None`, otherwise the [`AddrSide`] on which it can be found.
+    side: Option<AddrSide>,
+}
+
+impl Addr {
+    fn new(addr: usize) -> Self {
+        let ring = Ring::containing(addr);
+
+        // Determine what "side" of the ring this address is on, assuming the address is not a
+        // corner of the ring.
+        let side = if ring.corners().contains(&addr) {
+            None
+        } else {
+            ring.corners()
+                .windows(2)
+                .enumerate()
+                .filter_map(|(idx, c)| {
+                    if c[0] < addr && addr < c[1] {
+                        use AddrSide::*;
+                        let side = match idx {
+                            0 => North,
+                            1 => West,
+                            2 => South,
+                            _ => panic!("Invalid sliding window idx: {idx}"),
+                        };
+                        Some(side)
+                    } else {
+                        None
+                    }
+                })
+                .next()
+                // If the sliding window across the counter-clockwise ordered corners doesn't yield the
+                // side containing the target address, it must be on the side between the fourth & first
+                // corners which is not checked by that sliding window.
+                .or(Some(AddrSide::East))
+        };
+
+        Self { addr, ring, side }
+    }
 }
 
 #[cfg(test)]
@@ -181,9 +268,22 @@ mod tests {
         }
     }
 
+    // Get the first value written to the grid that's larger than the input
     #[test]
     fn p2() {
-        todo!("Not implemented");
+        let cases = vec![
+            ("1", "2"),
+            ("2", "4"),
+            ("4", "5"),
+            ("5", "10"),
+            ("10", "11"),
+            ("11", "23"),
+            ("23", "25"),
+        ];
+
+        for (input, expected) in cases {
+            assert_eq!(part2(input).unwrap(), expected);
+        }
     }
 
     mod ring {
@@ -236,6 +336,29 @@ mod tests {
             for (input, expected) in cases {
                 let ring = Ring::new(input).unwrap();
                 assert_eq!(ring.corners(), expected);
+            }
+        }
+    }
+
+    mod addr {
+        use super::*;
+
+        #[test]
+        fn adjacent() {
+            let cases = vec![
+                (1, vec![2, 3, 4, 5, 6, 7, 8, 9]),
+                (2, vec![11, 12, 3, 4, 1, 8, 9, 10]),
+                (3, vec![12, 13, 14, 15, 4, 1, 2, 11]),
+                (4, vec![3, 14, 15, 16, 5, 6, 1, 2]),
+                (5, vec![4, 15, 16, 17, 18, 19, 6, 1]),
+                (6, vec![1, 4, 5, 18, 19, 20, 7, 8]),
+                (7, vec![8, 1, 6, 19, 20, 21, 22, 23]),
+                (8, vec![9, 2, 1, 6, 7, 22, 23, 24]),
+                (9, vec![10, 11, 2, 1, 8, 9, 24, 25]),
+            ];
+
+            for (input, expected) in cases {
+                todo!();
             }
         }
     }
