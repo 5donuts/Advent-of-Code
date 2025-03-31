@@ -1,5 +1,7 @@
 # Advent of Code
 
+**:warning: This repository has moved to https://codeberg.org/5donuts/Advent-of-Code**
+
 My solutions to [Advent of Code](https://adventofcode.com/) puzzles
 
 ## Workspace Crates
